@@ -62,6 +62,16 @@ const static struct program_base_info pbi = {
     .__author       = "ryucihi1208",
 };
 
+struct list_head
+{
+	struct list_node n;
+};
+
+struct list_node
+{
+	struct list_node *next, *prev;
+};
+
 /*
  * Namespace structure
  * Execute setns (2) based on this data
@@ -95,6 +105,11 @@ void err_exit(char *msg, int err)
 {
     perror(msg);
     exit(1);
+}
+
+static inline struct list_node list()
+{
+	return NULL;
 }
 
 int get_container_pid(char *container_name)
@@ -231,6 +246,13 @@ threadfunc(void *parm)
 
  */
 
+static inline void *list_entry_or_null(const struct list_head *h)
+{
+	if (n == &h->n)
+		return NULL;
+	return (char *)n - off;
+}
+
 int main(int argc, char **argv)
 {
     u_16 i;
@@ -259,11 +281,9 @@ int main(int argc, char **argv)
 }
 
 /* 
-/* default behavior*/
 ret = pthread_create(&tid, NULL, start_routine, arg);
 
-/* initialized with default attributes */
 ret = pthread_attr_init(&tattr);
-/* default behavior specified*/
+
 ret = pthread_create(&tid, &tattr, start_routine, arg);
  */
