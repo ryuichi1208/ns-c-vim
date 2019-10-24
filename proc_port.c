@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <getopt.h>
 #include <limits.h>
+#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,9 +9,9 @@
 #include <unistd.h>
 
 #ifndef SOCKET
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/types.h>
+    #include <arpa/inet.h>
+    #include <sys/socket.h>
+    #include <sys/types.h>
 #endif
 
 #define PROGRAM_NAME "httpd_dayo"
@@ -19,6 +20,11 @@
 #define DEFAULT_PROC_NUM 1
 #define DEFAULT_TIME_OUT 60
 #define PROTCOL_TYPE tcp
+
+/* スキャンエラー用の定数 */
+#define PS_CONNECT 0
+#define PS_NOCONNECT 1
+#define PS_ERROR 2
 
 #define MAX(a, b) (a > b ? a : b)
 
@@ -36,7 +42,16 @@ typedef struct {
 
 static pid_t *c_pid_list;
 
-void usage(char *msg)
+static void print_hostname(struct hostent *host)
+{
+    int i;
+    fprintf(stdout, "hostname = %s\n", host->h_name);
+    for (i=0; host->h_aliases[i]; i++) {
+        fprintf(stdout, "alias(%d) = %s\n", i, host->h_aliases[i]);
+    }
+}
+
+static void usage(char *msg)
 {
     if (msg)
         fprintf(stderr, "%s\n", msg);
