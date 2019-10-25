@@ -165,6 +165,11 @@ void continue_use_port(int serv_sock, int proc_num)
     }
     // 子プロセスを待ち合わせる関数
     result = wait(&status);
+    
+    // 確保した領域を解放
+    if (c_pid_list)
+        free(c_pid_list);
+
     return;
 }
 
